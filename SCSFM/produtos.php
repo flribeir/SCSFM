@@ -4,17 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Produtos</title>
-    <style>
-        /* Estilos para o layout */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5+z5KAzzPcG8ift2K1z4dh2plZf9v2HVWqtJQ6qJ" crossorigin="anonymous">
 
+    </script>
+    <style>
         /* Estilo para a parte superior */
         .top {
             flex: 1;
@@ -39,24 +34,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #333;
-            color: #fff;
             height: 40%;
         }
 
-        /* Estilo para os botões */
-        .buttons {
-            display: flex;
-            gap: 10px;
-        }
 
-        .buttons button {
-            padding: 10px 20px;
-            background-color: #ddd;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -65,22 +46,64 @@
         <div class="grid">
             <!-- Seu grid aqui -->
             <!-- Exemplo de grid -->
-            <table>
+            <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Produto</th>
-                        <th>Nome</th>
+                        <th colspan="1">Código</th>
+                        <th colspan="3">Nome</th>
+                        <th colspan="1">Preço</th>
+                        <th colspan="1"> Qtd. Mínima</th>
+                        <th colspan="1">Qtd. Atual</th>
+                        <th colspan="1">Sel</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <th>Produto 1</th>
-                        <th>Nome 1</th>
-                    </tr>
-                    <tr>
-                        <td>Produto 2</td>
-                        <td>Nome 2</td>
-                    </tr>
+
+<?php
+// Conectar ao banco de dados
+$servername = "172.174.233.235";
+$username = "root";
+$password = "univesp";
+$dbname = "SCSFM";
+
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+
+// Verificar conexão
+if (!$conn) {
+    die("Conexão falhou: " . mysqli_connect_error());
+}
+
+// Consulta SQL para selecionar todos os produtos
+$sql = "SELECT * FROM Produtos";
+
+// Executar a consulta SQL
+$result = mysqli_query($conn, $sql);
+
+// Verificar se a consulta foi bem-sucedida
+if (!$result) {
+    die("Erro na consulta: " . mysqli_error($conn));
+}
+
+if ($result->num_rows > 0) {
+    // Saída de dados de cada linha
+    while($row = mysqli_fetch_assoc($result)) {
+        echo "<tr><td colspan='1'>" . $row["ID"]                . "</td>".
+                 "<td colspan='3'>" . $row["Descricao"]         . "</td>".
+                 "<td colspan='1'>" . $row["Preco"]             . "</td>".
+                 "<td colspan='1'>" . $row["Quantidade_Minima"] . "</td>".
+                 "<td colspan='1'>" . $row["Quantidade_Atual"]  . "</td>".
+                 "<td colspan='1'>" . "<input class='form-check-input' type='radio' name='flexRadioDefault' id='".$row["ID"]."'>"  . "</td>".
+             "</tr>";
+    }
+} else {
+    echo "0 resultados";
+}
+
+$conn->close();
+
+?>
+
+
                 </tbody>
             </table>
         </div>
@@ -89,11 +112,17 @@
     <!-- Parte inferior -->
     <div class="bottom">
         <div class="buttons">
-            <button>Incluir</button>
-            <button>Alterar</button>
-            <button>Excluir</button>
-            <button>Fechar</button>
+<!--            <button class="btn btn-primary">Incluir</button> -->
+            <button class="btn btn-primary" onclick="openModal('incluir_produto.php')">Incluir</button>
+            <button class="btn btn-primary">Alterar</button>
+            <button class="btn btn-primary">Excluir</button>
+            <button class="btn btn-primary" onclick="closeModal()">Fechar</button>
         </div>
     </div>
+
+<!-- // //////////////////////////////////////////////////////////////////////////// -->
+
+<!-- // //////////////////////////////////////////////////////////////////////////// -->
+
 </body>
 </html>
