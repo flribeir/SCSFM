@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Usuários</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous">
+        < script src = "script.js" >
+    </script>
+    </script>
     <style>
-        /* Estilos para o layout */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
         /* Estilo para a parte superior */
         .top {
             flex: 1;
@@ -27,8 +24,8 @@
 
         /* Estilo para o grid */
         .grid {
-            width: 80%;
-            height: 80%;
+            width: 60%;
+            height: 60%;
             background-color: #fff;
             border: 1px solid #ccc;
         }
@@ -39,48 +36,75 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #333;
-            color: #fff;
             height: 40%;
-        }
-
-        /* Estilo para os botões */
-        .buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .buttons button {
-            padding: 10px 20px;
-            background-color: #ddd;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
         }
     </style>
 </head>
+
 <body>
     <!-- Parte superior -->
     <div class="top">
         <div class="grid">
             <!-- Seu grid aqui -->
             <!-- Exemplo de grid -->
-            <table>
+            <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Usuário</th>
-                        <th>Responsável</th>
+                        <th colspan="1">Código</th>
+                        <th colspan="2">Nome</th>
+                        <th colspan="1">Departamento</th>
+                        <th colspan="1">Excluir</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Usuário 1</td>
-                        <td>Responsável 1</td>
-                    </tr>
-                    <tr>
-                        <td>Usuário 2</td>
-                        <td>Responsável 2</td>
-                    </tr>
+
+                    <?php
+                    // Conectar ao banco de dados
+                    $servername = "172.174.233.235";
+                    $username = "root";
+                    $password = "univesp";
+                    $dbname = "SCSFM";
+
+                    $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+                    // Verificar conexão
+                    if (!$conn) {
+                        die("Conexão falhou: " . mysqli_connect_error());
+                    }
+
+                    // Consulta SQL para selecionar todos os usuarios
+                    $sql = "SELECT u.ID,
+                                   u.Nome,
+                                   d.Nome Nome_Departamento
+                              FROM Usuarios u
+                              LEFT JOIN Departamentos d
+                                ON u.ID_Departamentos = d.ID
+                             ORDER BY u.Nome ASC";
+
+                    // Executar a consulta SQL
+                    $result = mysqli_query($conn, $sql);
+
+                    // Verificar se a consulta foi bem-sucedida
+                    if (!$result) {
+                        die("Erro na consulta: " . mysqli_error($conn));
+                    }
+
+                    if ($result->num_rows > 0) {
+                        // Saída de dados de cada linha
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            echo "<tr><td colspan='1'>" . $row["ID"]          . "</td>" .
+                                "<td colspan='2'>" . $row["Nome"]             . "</td>" .
+                                "<td colspan='1'>" . $row["Nome_Departamento"] . "</td>" .
+                                "<td colspan='1'>" . "<button type='button' class='btn btn-outline-danger btn_delete' id='btn_delete' value='" . $row["ID"] . "' >&#9746;</button>" . "</td>" .
+                                "</tr>";
+                        }
+                    } else {
+                        echo "0 resultados";
+                    }
+
+                    $conn->close();
+
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -89,11 +113,34 @@
     <!-- Parte inferior -->
     <div class="bottom">
         <div class="buttons">
-            <button>Incluir</button>
-            <button>Alterar</button>
-            <button>Excluir</button>
-            <button>Fechar</button>
+            <button class="btn btn-primary" onclick="openModal('incluir_usuario.php')">Incluir</button>
+            <button class="btn btn-primary">Alterar</button>
+            <button class="btn btn-primary" onclick="closeModal()">Fechar</button>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.btn_delete').click(function(event) {
+                event.preventDefault(); // Evita que o formulário seja enviado normalmente
+
+                var id = $(this).val();
+
+                $.ajax({
+                    url: 'usuario_delete.php',
+                    type: 'POST',
+                    data: {
+                        id: id
+                    },
+                    success: function(response) {
+                        alert(response);
+                        // Fechar o modal
+                        closeModal();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
+
 </html>
